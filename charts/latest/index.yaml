@@ -1,0 +1,13 @@
+apiVersion: v1
+entries:
+  tns-csi-driver:
+  - apiVersion: v1
+    appVersion: v0.1.0
+    created: "2025-03-06T13:18:07.517337733-05:00"
+    description: CSI Driver for TrueNAS SCALE
+    digest: 8bf81f3613a4babd67f192fe059aa51284c26e04286f1fdd591634c8cf733178
+    name: tns-csi-driver
+    urls:
+    - cr-interne.denis.prive/outils/charts/tns-csi-driver-v0.1.0.tgz
+    version: v0.1.0
+generated: "2025-03-06T13:18:07.516657812-05:00"

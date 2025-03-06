@@ -1,0 +1,50 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: tns-csi
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+
+provisioner: tns.csi.titou10.org
+allowVolumeExpansion: true
+
+reclaimPolicy: Delete # or Retain . default=Delete
+volumeBindingMode: Immediate # or WaitForFirstConsumer
+
+mountOptions:
+  - hard
+  - nfsvers=4.2
+  - rsize=1048576
+  - wsize=1048576
+  - noacl
+  - noatime
+  - nocto
+  - nodiratime
+
+parameters:
+  tnsWsUrl: wss://truenas.server.ip/websocket # mandatory
+  rootDataset: POOL-ABCD/CSI # mandatory
+  dsArchivePrefix: "ab"
+  # When PV is deleted, what to do with dataset: delete, retain or archive. default=delete
+  onDelete: delete # or retain or archive. default=delete
+
+  # truenas apiKey
+  # kubelet -n tns-csi create secret generic test-api-key --from-literal apiKey="1-abcdef"
+  # all 4 parameters mandatory
+  csi.storage.k8s.io/provisioner-secret-name: test-api-key
+  csi.storage.k8s.io/provisioner-secret-namespace: tns-csi
+  csi.storage.k8s.io/controller-expand-secret-name: test-api-key
+  csi.storage.k8s.io/controller-expand-secret-namespace: tns-csi
+
+  mountPermissions: "777"
+
+  dsPermissionsMode: "0770"
+  #dsPermissionsUser: "0"
+  dsPermissionsGroup: "6000"
+
+  shareMaprootUser: "root"
+  shareMaprootGroup: "smb"
+  #shareMapallUser: ""
+  #shareMapallGroup: ""
+  #shareAllowedHosts: ""
+  shareAllowedNetworks: "192.168.5.0/24 , 192.168.6.0/24"

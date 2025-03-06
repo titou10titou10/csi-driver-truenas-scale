@@ -1,7 +1,9 @@
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![GitHub release](https://img.shields.io/github/release/titou10titou10/csi-driver-truenas-scale.svg)](https://github.com/titou10titou10/csi-driver-truenas-scale/releases/latest)
-[![Build csi-driver-truenas-scale](https://github.com/titou10titou10/csi-driver-truenas-scale/actions/workflows/build.yaml/badge.svg)](https://github.com/titou10titou10/csi-driver-truenas-scale/actions/workflows/build.yml)
+[![Build csi-driver-truenas-scale](https://github.com/titou10titou10/csi-driver-truenas-scale/actions/workflows/build.yaml/badge.svg)](https://github.com/titou10titou10/csi-driver-truenas-scale/actions/workflows/build.yaml)
+![Container Image](https://img.shields.io/github/cr/titou10titou10/csi-driver-truenas-scale/ghcr.io/titou10titou10/tnsplugin)
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I2I7BYYKC)

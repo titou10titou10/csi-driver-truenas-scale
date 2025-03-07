@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # versions
-IMAGE_TAG = v0.1.0
+IMAGE_TAG ?= v0.1.0
 CSI_VERSION = 1.11.0
 
 # code

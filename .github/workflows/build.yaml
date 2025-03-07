@@ -40,11 +40,11 @@ jobs:
       - name: Install dependencies
         run: go mod tidy
 
-      - name: Build with Makefile
-        run: make build
+      #- name: Build with Makefile
+      #  run: make build IMAGE_TAG=dev
 
       - name: Build and Push with Makefile
-        run: make podman-push
+        run: make podman-push IMAGE_TAG=dev
 
       - name: Clean up build artifacts
         run: make clean
@@ -66,11 +66,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: Package Helm chart
-        run: make helm-package
-
       - name: Push Helm chart to OCI registry
-        run: make helm-push
+        run: make helm-push IMAGE_TAG=dev
 
   test:
     runs-on: ubuntu-latest

@@ -90,14 +90,14 @@ build-and-push: podman-push clean
 # --------
 # Helm
 # --------
-HELM_VERSION = ${IMAGE_TAG}
 HELM_VERSION_SUFFIX ?= ""
+HELM_VERSION = ${IMAGE_TAG}${HELM_VERSION_SUFFIX}
 HELM_REGISTRY ?= ghcr.io/titou10titou10
 
 
 .PHONY: helm-package
 helm-package:
-	helm package charts/latest/tns-csi-driver -d charts/latest/ --version ${IMAGE_TAG}${HELM_VERSION_SUFFIX}
+	helm package charts/latest/tns-csi-driver -d charts/latest/ --version ${HELM_VERSION}
 	helm repo index charts/latest/ --url ${HELM_REGISTRY}
 
 .PHONY: helm-push

@@ -67,7 +67,7 @@ jobs:
           password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Push Helm chart to OCI registry
-        run: make helm-push IMAGE_TAG=dev
+        run: make helm-push HELM_VERSION_SUFFIX="-dev"
 
   test:
     runs-on: ubuntu-latest

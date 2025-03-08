@@ -2,18 +2,19 @@
 
 ### Requirements
 
+- go 1.24.1+ installed
 - podman must be installed
 
 ## How to build this project
  - Clone repo
 ```console
-$ mkdir -p $GOPATH/src/sigs.k8s.io/
-$ git clone https://github.com/titou10titou10/csi-driver-truenas-scale $GOPATH/src/csi-driver-truenas-scale
+$ git clone https://github.com/titou10titou10/csi-driver-truenas-scale 
+$ cd csi-driver-truenas-scale
 ```
 
  - Build CSI driver
 ```console
-$ cd $GOPATH/src/csi-driver-truenas-scale
+$ cd csi-driver-truenas-scale
 $ make build
 ```
 

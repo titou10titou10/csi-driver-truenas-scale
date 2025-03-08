@@ -3,8 +3,6 @@
 ### TODO
 - write tests
 - package
-- github repo
-- github actions
 - publish on csi site: https://kubernetes-csi.github.io/docs/drivers.html
 
 ### Improvements
@@ -23,6 +21,3 @@
    - still Alpha in k8s v1.31
 - ListSnapshots
    -> check snapshots health
-
-### To build
-- podman installed

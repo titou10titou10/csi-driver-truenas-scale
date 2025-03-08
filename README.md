@@ -27,15 +27,17 @@ The driver requires:
 - the csi snapshot controller must be installed on the cluster
 
 ### Behaviour
-The driver needs the url of the WebSocket  exposed API, it can be express in four ways:
+The driver needs the url of the WebSocket  exposed API, it can be expressed in four ways:
 
 For TrueNAS Scale < 25.04 :
-- ws://<TrueNAS.server>/websocket
-- wss://<TrueNAS.server>/websocket
+- `ws://<TrueNAS.server>/websocket`
+- `wss://<TrueNAS.server>/websocket`
 
 For TrueNAS Scale >= 25.04:
-- ws://<TrueNAS.server>/api/current
-- wss://<TrueNAS.server>/api/current
+- `ws://<TrueNAS.server>/api/current`
+- `wss://<TrueNAS.server>/api/current`
+
+Currently, for TLS access (`wss://...`), the driver bypass the certificate validation
 
 The dataset permissions and NFS share attributes for the datasets are defined in the StorageClass, like the NFS mount options. Other dataset attributes (e.g., compression, deduplication) are inherited from the 'root' dataset.
 
@@ -50,7 +52,6 @@ In addition to the standard`"delete"`or`"retain"`reclaimPolicy for the volumes, 
 
 
 ### CSI features implemented
-The driver implements the following csi features:
 | Feature                      | Status |
 |------------------------------|--------|
 | Create/Delete Volume         | ✅     |
@@ -78,7 +79,7 @@ On OpenShift/OKD the service accounts that run the csi controller and node must 
 
 The best option to install the driver is via Helm: Check the [Helm installation doc](https://github.com/titou10titou10/csi-driver-truenas-scale/blob/main/charts/README.md)
 
-For manual installation, check manifests in https://github.com/titou10titou10/csi-driver-truenas-scale/tree/main/deploy
+For manual installation, check the example manifests in ./deploy
 
 
 ### CSIDriver, StorageClass and VolumeSnapshotClass parameters

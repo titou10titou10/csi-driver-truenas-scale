@@ -1,16 +1,20 @@
-# NFS CSI driver development guide
+# CSI driver for Kubernetes for TrueNAS Scale development guide
+
+### Requirements
+
+- podman must be installed
 
 ## How to build this project
  - Clone repo
 ```console
 $ mkdir -p $GOPATH/src/sigs.k8s.io/
-$ git clone https://github.com/kubernetes-csi/csi-driver-nfs $GOPATH/src/github.com/kubernetes-csi/csi-driver-nfs
+$ git clone https://github.com/titou10titou10/csi-driver-truenas-scale $GOPATH/src/csi-driver-truenas-scale
 ```
 
  - Build CSI driver
 ```console
-$ cd $GOPATH/src/github.com/kubernetes-csi/csi-driver-nfs
-$ make
+$ cd $GOPATH/src/csi-driver-truenas-scale
+$ make build
 ```
 
  - Run verification test before submitting code
@@ -20,9 +24,13 @@ $ make verify
 
  - If there is config file changed under `charts` directory, run following command to update chart file
 ```console
-helm package charts/latest/csi-driver-nfs -d charts/latest/
+make helm-push
 ```
 
+TBD
+TBD
+TBD
+ 
 ## How to test CSI driver in local environment
 
 Install `csc` tool according to https://github.com/rexray/gocsi/tree/master/csc
@@ -36,7 +44,7 @@ $ make build
 
 #### Start CSI driver locally
 ```console
-$ cd $GOPATH/src/github.com/kubernetes-csi/csi-driver-nfs
+$ cd $GOPATH/src/csi-driver-truenas-scale
 $ ./bin/nfsplugin --endpoint unix:///tmp/csi.sock --nodeid CSINode -v=5 &
 ```
 

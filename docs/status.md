@@ -16,11 +16,11 @@
 
 ### Will not be implemented
  - GetCapacity
-   -> Link pod region/rack.. topology to storage capacity associated to that region/rack/...
-   -> stil Alpha in k8s v1.31
+   - Link pod region/rack.. topology to storage capacity associated to that region/rack/...
+   - still Alpha in k8s v1.31
 - ListVolumes + GetVolume
-   -> check volumes health
-   -> stil Alpha in k8s v1.31
+   - check volumes health
+   - still Alpha in k8s v1.31
 - ListSnapshots
    -> check snapshots health
 

@@ -1,5 +1,5 @@
 ## Driver Parameters
-The csi driver does not required specific parameters
+The csi driver does not required any specific parameters
 
 ## Example CSIDriver
 

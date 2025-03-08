@@ -27,8 +27,6 @@ The driver requires:
 - the csi snapshot controller must be installed on the cluster
 
 ### Behaviour
-The dataset permissions and NFS share attributes for the datasets are defined in the StorageClass, like the NFS mount options. Other dataset attributes (e.g., compression, deduplication) are inherited from the 'root' dataset.
-
 The driver needs the url of the WebSocket  exposed API, it can be express in four ways:
 
 For TrueNAS Scale < 25.04 :
@@ -38,6 +36,8 @@ For TrueNAS Scale < 25.04 :
 For TrueNAS Scale >= 25.04:
 - ws://<TrueNAS.server>/api/current
 - wss://<TrueNAS.server>/api/current
+
+The dataset permissions and NFS share attributes for the datasets are defined in the StorageClass, like the NFS mount options. Other dataset attributes (e.g., compression, deduplication) are inherited from the 'root' dataset.
 
 In addition to the standard`"delete"`or`"retain"`reclaimPolicy for the volumes, it is possible to define a`onDelete`parameter in the StorageClass with the following behavior:
 
@@ -81,7 +81,7 @@ The best option to install the driver is via Helm: Check the [Helm installation 
 For manual installation, check manifests in https://github.com/titou10titou10/csi-driver-truenas-scale/tree/main/deploy
 
 
-### CSIDriver, StorageClass, VolumeSnapshotClass and static Persistent Volume parameters
+### CSIDriver, StorageClass and VolumeSnapshotClass parameters
 
 Check the related doc:
 - [CSI Driver parameters](./docs/driver-parameters.md)

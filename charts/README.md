@@ -1,4 +1,4 @@
-# Install the Truenas Scale CSI driver with Helm 3
+# Install the TrueNAS Scale CSI driver with Helm
 
 ## Overview
 

@@ -27,7 +27,7 @@ The driver requires:
 - the csi snapshot controller must be installed on the cluster
 
 ### Behaviour
-The driver needs the url of the WebSocket  exposed API, it can be expressed in four ways:
+The driver needs the url of the WebSocket exposed API, it can be expressed in four ways:
 
 For TrueNAS Scale < 25.04 :
 - `ws://<TrueNAS.server>/websocket`
@@ -48,22 +48,23 @@ In addition to the standard`"delete"`or`"retain"`reclaimPolicy for the volumes, 
 | retain        | any      | The PVC is deleted. The PV and dataset still exist in Kubernetes  |
 | delete        | delete   | The PVC and PV are deleted. The dataset is deleted in TrueNAS |
 | delete        | retain   | The PVC and PV are deleted. The dataset still exist in TrueNAS |
-| delete        | archive   | The PVC and PV are deleted. The dataset is renamed with the specified "archive prefix" in TrueNAS |
+| delete        | archive  | The PVC and PV are deleted. The dataset is renamed with the specified "archive prefix" in TrueNAS |
 
 
-### CSI features implemented
-| Feature                      | Status |
-|------------------------------|--------|
-| Create/Delete Volume         | ✅     |
-| Create/Delete Snapshots      | ✅     |
-| Clone Volume                 | ✅     |
-| Create Volume from Snapshot  | ✅     |
-| Expand Volume                | ✅     |
-| Storage Capacity             | ❌     |
-| List Volumes                 | ❌     |
-| List Snapshots               | ❌     |
-| Ephemeral Local Volumes      | ❌     |
-| VolumeGroupSnapshot          | ❌     |
+### Current CSI features implemented
+| Feature                         | Status |
+|---------------------------------|--------|
+| Create/Delete Volume            | ✅     |
+| Create/Delete/Restore Snapshots | ✅     |
+| Volume Cloning                  | ✅     |
+| Volume Expansion                | ✅     |
+| Storage Capacity Tracking       | ❌     |
+| List Volumes                    | ❌     |
+| List Snapshots                  | ❌     |
+| Ephemeral Inline Volumes        | ❌     |
+| VolumeGroupSnapshot             | ❌     |
+| Volume Topology                 | ❌     |
+| Raw Blocks Volume               | ❌     |
 
 
 ### Container Images & Kubernetes Compatibility:
@@ -72,14 +73,27 @@ In addition to the standard`"delete"`or`"retain"`reclaimPolicy for the volumes, 
 |main branch   | 1.31+                 | Alpha  |
 
 
-### Installing the  driver on a Kubernetes cluster
-The apiKey must be provided to the driver via a secret. The name of the secret must be set in the StorageClass / VolumeSnapshotClass
+### Installing the  driver in a Kubernetes cluster
 
-On OpenShift/OKD the service accounts that run the csi controller and node must have privileged access
+On TrueNAS Scale:
+- create a dataset that will be used as the "root" or parent dataset where the driver will create the datasets for persistent volumes
+- enable the NFS sharing service
+- create aa user with the right to create datasets inside the root dataset, take snapshots and create nfs shares
+- cretae an API token for the user
+
+On Kubernetes:
+- the csi snapshot controller must be installed
+
+On Kubernetes:
+- create a secret with the apiKey. The secret must be set in the StorageClass / VolumeSnapshotClass
+
+On OpenShift/OKD:
+- the service accounts that run the csi controller and node must have privileged access
+
 
 The best option to install the driver is via Helm: Check the [Helm installation doc](https://github.com/titou10titou10/csi-driver-truenas-scale/blob/main/charts/README.md)
 
-For manual installation, check the example manifests in ./deploy
+For manual installation, check the example manifests in [./deploy](./deploy) directory
 
 
 ### CSIDriver, StorageClass and VolumeSnapshotClass parameters
@@ -87,7 +101,11 @@ For manual installation, check the example manifests in ./deploy
 Check the related doc:
 - [CSI Driver parameters](./docs/driver-parameters.md)
 - [StorageClass / VolumeSnapshotClass parameters](./docs/sc-vsc-parameters.md)
+- [Static Provisionning](./docs/static-provisionning.md)
 
+### Developpement
+
+Please refer to [this page](./docs/dev.md)
 
 ### Acknowledgments
 

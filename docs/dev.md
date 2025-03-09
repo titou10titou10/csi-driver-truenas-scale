@@ -3,7 +3,7 @@
 ### Requirements
 
 - go 1.24.1+ installed
-- podman must be installed
+- podman is installed
 
 ## How to build this project
  - Clone repo
@@ -18,14 +18,24 @@ $ cd csi-driver-truenas-scale
 $ make build
 ```
 
- - Run verification test before submitting code
-```console
-$ make verify
-```
-
  - If there is config file changed under `charts` directory, run following command to update chart file
 ```console
-make helm-push
+$ cd csi-driver-truenas-scale
+$ make helm-package
+```
+
+## How to push artefefacts
+
+ - Push the driver image
+```console
+$ cd csi-driver-truenas-scale
+$ make build-and-push
+```
+
+ - Push the helm chart
+```console
+$ cd csi-driver-truenas-scale
+$ make helm-push
 ```
 
 TBD
@@ -99,30 +109,3 @@ $ csc node get-info --endpoint "$endpoint"
 CSINode
 ```
 
-## How to test CSI driver in a Kubernetes cluster
-- Set environment variable
-```console
-export REGISTRY=<dockerhub-alias>
-export IMAGE_VERSION=latest
-```
-
-- Build container image and push image to dockerhub
-```console
-# run `docker login` first
-# build docker image
-make container
-# push the docker image
-make push
-```
-
-- Deploy a Kubernetes cluster and make sure `kubectl get nodes` works on your dev box.
-
-- Run E2E test on the Kubernetes cluster.
-
-```console
-# install NFS CSI Driver on the Kubernetes cluster
-make e2e-bootstrap
-
-# run the E2E test
-make e2e-test
-```

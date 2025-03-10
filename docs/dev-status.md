@@ -4,9 +4,10 @@
 - write tests
 - package
 - publish on csi site: https://kubernetes-csi.github.io/docs/drivers.html
+- implements Block storage via iSCSI
 
 ### Improvements
-- better delete/archive management?
+- better delete/archive management? -> rename dataset currently not implemented via wss..
 - review log messages
 - review error handling:
   - delete when does not exists

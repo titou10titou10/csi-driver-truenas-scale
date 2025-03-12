@@ -1,0 +1,152 @@
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: tns-csi-node
+  namespace: tns-csi
+spec:
+  selector:
+    matchLabels:
+      app: ns-csi-driver
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: tns-csi-node
+    spec:
+      nodeSelector:
+        kubernetes.io/os: linux
+      restartPolicy: Always
+      serviceAccountName: tns-csi-node-sa
+      hostNetwork: true
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - resources:
+            limits:
+              memory: 100Mi
+            requests:
+              cpu: 10m
+              memory: 20Mi
+          name: liveness-probe
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+          terminationMessagePolicy: File
+          image: 'registry.k8s.io/sig-storage/livenessprobe:v2.15.0'
+          args:
+            - '--csi-address=/csi/csi.sock'
+            - '--probe-timeout=3s'
+            - '--http-endpoint=localhost:29653'
+            - '--v=2'
+        - resources:
+            limits:
+              memory: 100Mi
+            requests:
+              cpu: 10m
+              memory: 20Mi
+          name: node-driver-registrar
+          env:
+            - name: DRIVER_REG_SOCK_PATH
+              value: /var/lib/kubelet/plugins/csi-tnsplugin/csi.sock
+            - name: KUBE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+            - name: registration-dir
+              mountPath: /registration
+          terminationMessagePolicy: File
+          image: 'registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.13.0'
+          args:
+            - '--v=2'
+            - '--csi-address=/csi/csi.sock'
+            - '--kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)'
+        - resources:
+            limits:
+              memory: 300Mi
+            requests:
+              cpu: 10m
+              memory: 20Mi
+          terminationMessagePath: /dev/termination-log
+          name: tnsplugin
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 29653
+              host: localhost
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 5
+          env:
+            - name: NODE_ID
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: CSI_ENDPOINT
+              value: 'unix:///csi/csi.sock'
+          securityContext:
+            capabilities:
+              add:
+                - SYS_ADMIN
+              drop:
+                - ALL
+            privileged: true
+            allowPrivilegeEscalation: true
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+            - name: pods-mount-dir
+              mountPath: /var/lib/kubelet/pods
+              mountPropagation: Bidirectional
+          terminationMessagePolicy: File
+          image: 'ghcr.io/titou10titou10/tnsplugin:dev'
+          args:
+            - '--v=5'
+            - '--nodeid=$(NODE_ID)'
+            - '--endpoint=$(CSI_ENDPOINT)'
+            - '--drivername=tns.csi.titou10.org'
+            - '--mount-permissions=0'
+      serviceAccount: tns-csi-node-sa
+      volumes:
+        - name: socket-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins/csi-tnsplugin
+            type: DirectoryOrCreate
+        - name: pods-mount-dir
+          hostPath:
+            path: /var/lib/kubelet/pods
+            type: Directory
+        - name: registration-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins_registry
+            type: Directory
+      dnsPolicy: ClusterFirstWithHostNet
+      tolerations:
+        - operator: Exists
+      priorityClassName: system-cluster-critical
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 0
+  revisionHistoryLimit: 10

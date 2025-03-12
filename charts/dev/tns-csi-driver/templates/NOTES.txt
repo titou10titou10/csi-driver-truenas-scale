@@ -1,0 +1,15 @@
+The CSI Truenas Scale driver is getting deployed to your cluster.
+
+To check CSI NFS Driver pods status, please run:
+
+  kubectl -n {{ .Release.Namespace }} get pods --selector="app.kubernetes.io/instance={{ .Release.Name }}" --watch
+  kubectl get csidriver,sc,vsclass
+
+If you choose to create a StorageClass and/or a VolumeSnapshotClass, don't forget to create s secret for the Truenas Scale api key. The name of the secret must match with StorageClass and/or a VolumeSnapshotClass definitions
+
+  kubectl -n {{ .Release.Namespace }} create secret generic truenas-api-key --from-literal apiKey="1-abcdef..."
+
+If you run on OpenShift, give "privileged" right to the service accounts:
+
+  oc adm policy add-scc-to-user privileged -n {{ .Release.Namespace }} -z {{ .Values.serviceAccount.controller }}
+  oc adm policy add-scc-to-user privileged -n {{ .Release.Namespace }} -z {{ .Values.serviceAccount.node }}

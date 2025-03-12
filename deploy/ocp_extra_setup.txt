@@ -1,0 +1,4 @@
+
+oc new-project tns-csi
+oc adm policy add-scc-to-user privileged -n tns-csi -z tns-csi-node-sa
+oc adm policy add-scc-to-user privileged -n tns-csi -z tns-csi-controller-sa

@@ -1,0 +1,205 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: tns-csi-controller
+  namespace: tns-csi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tns-csi-driver-controller
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: tns-csi-driver-controller
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        kubernetes.io/os: linux
+      restartPolicy: Always
+      serviceAccountName: tns-csi-controller-sa
+      schedulerName: default-scheduler
+      containers:
+        - resources:
+            limits:
+              cpu: 300m
+              memory: 400Mi
+            requests:
+              cpu: 300m
+              memory: 20Mi
+          name: csi-provisioner
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+          image: 'registry.k8s.io/sig-storage/csi-provisioner:v5.2.0'
+          args:
+            - '-v=2'
+            - '--csi-address=$(ADDRESS)'
+            - '--leader-election'
+            - '--leader-election-namespace=tns-csi'
+            - '--timeout=1200s'
+            - '--retry-interval-max=30m'
+            - '--feature-gates=HonorPVReclaimPolicy=true'
+            - '--extra-create-metadata=true'
+            # Capacity
+            #- '--enable-capacity'
+            #- '--capacity-ownerref-level=2'
+            #- '--capacity-poll-interval=3m' 
+        - resources:
+            limits:
+              memory: 400Mi
+            requests:
+              cpu: 10m
+              memory: 20Mi
+          name: csi-resizer
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+          image: 'registry.k8s.io/sig-storage/csi-resizer:v1.13.1'
+          args:
+            - '-csi-address=$(ADDRESS)'
+            - '-v=2'
+            - '-leader-election'
+            - '--leader-election-namespace=tns-csi'
+            - '-handle-volume-inuse-error=false'
+        - resources:
+            limits:
+              cpu: 301m
+              memory: 200Mi
+            requests:
+              cpu: 301m
+              memory: 20Mi
+          name: csi-snapshotter
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+          image: 'registry.k8s.io/sig-storage/csi-snapshotter:v8.2.0'
+          args:
+            - '--v=2'
+            - '--csi-address=$(ADDRESS)'
+            - '--leader-election-namespace=tns-csi'
+            - '--leader-election'
+            - '--timeout=1200s'
+            - '--retry-interval-max=30m'
+        - resources:
+            limits:
+              memory: 100Mi
+            requests:
+              cpu: 10m
+              memory: 20Mi
+          name: liveness-probe
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+          image: 'registry.k8s.io/sig-storage/livenessprobe:v2.15.0'
+          args:
+            - '--csi-address=/csi/csi.sock'
+            - '--probe-timeout=3s'
+            - '--http-endpoint=localhost:29652'
+            - '--v=2'
+        - resources:
+            limits:
+              cpu: 302m
+              memory: 200Mi
+            requests:
+              cpu: 302m
+              memory: 20Mi
+          name: tnsplugin
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 29652
+              host: localhost
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 5
+          env:
+            - name: NODE_ID
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: CSI_ENDPOINT
+              value: 'unix:///csi/csi.sock'
+          securityContext:
+            capabilities:
+              add:
+                - SYS_ADMIN
+              drop:
+                - ALL
+            privileged: true
+            allowPrivilegeEscalation: true
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: pods-mount-dir
+              mountPath: /var/lib/kubelet/pods
+              mountPropagation: Bidirectional
+            - name: socket-dir
+              mountPath: /csi
+          image: 'ghcr.io/titou10titou10/tnsplugin:dev'
+          args:
+            - '--v=5'
+            - '--nodeid=$(NODE_ID)'
+            - '--endpoint=$(CSI_ENDPOINT)'
+            - '--drivername=tns.csi.titou10.org'
+            - '--mount-permissions=0'
+            - '--default-ondelete-policy=delete'
+      serviceAccount: tns-csi-controller-sa
+      volumes:
+        - name: pods-mount-dir
+          hostPath:
+            path: /var/lib/kubelet/pods
+            type: Directory
+        - name: socket-dir
+          emptyDir: {}
+      dnsPolicy: ClusterFirstWithHostNet
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          operator: Exists
+          effect: NoSchedule
+        - key: node-role.kubernetes.io/controlplane
+          operator: Exists
+          effect: NoSchedule
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+        - key: CriticalAddonsOnly
+          operator: Exists
+          effect: NoSchedule
+      priorityClassName: system-cluster-critical

@@ -1,0 +1,12 @@
+kind: VolumeSnapshotClass
+apiVersion: snapshot.storage.k8s.io/v1
+metadata:
+  name: tns-csi-snapshot
+  labels:
+    velero.io/csi-volumesnapshot-class: "true"
+driver: tns.csi.titou10.org
+deletionPolicy: Delete
+parameters:
+  csi.storage.k8s.io/snapshotter-secret-name: test-api-key # mandatory
+  csi.storage.k8s.io/snapshotter-secret-namespace: tns-csi # mandatory
+

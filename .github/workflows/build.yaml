@@ -1,0 +1,88 @@
+name: Build and Push Go Project
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.1'
+
+      - name: Login to ghcr
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      #- name: Cache Go modules
+      #  uses: actions/cache@v3
+      #  with:
+      #    path: ~/.cache/go-build
+      #    key: ${{ runner.os }}-go-${{ hashFiles('**/go.mod') }}
+      #    restore-keys: |
+      #      ${{ runner.os }}-go-
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      #- name: Build with Makefile
+      #  run: make build IMAGE_TAG=dev
+
+      - name: Build and Push with Makefile
+        run: make podman-push IMAGE_TAG=ci
+
+      - name: Clean up build artifacts
+        run: make clean
+
+  helm:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: Azure/setup-helm@v4.3.0
+
+      - name: Login to ghcr
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Push Helm chart to OCI registry
+        run: make helm-push IMAGE_TAG=ci
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.1'
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: Run Go tests
+        run: make test-go

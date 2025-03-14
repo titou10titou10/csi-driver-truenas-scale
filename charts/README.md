@@ -60,18 +60,24 @@ The following table lists the configurable parameters of the chart and their def
 | `feature.enableFSGroupPolicy`      | Enable FSGroup policy                   | `true`                                        |
 | `kubeletDir`                       | Path to kubelet directory               | `/var/lib/kubelet`                            |
 | `customLabels`                     | Custom labels                           | `{}`                                          |
+| `controller.name`                  | Controller deployment name              | `tns-csi-controller`                          |
 | `controller.replicas`              | Number of controller replicas           | `1`                                           |
 | `controller.strategyType`          | Deployment strategy type                | `Recreate`                                    |
 | `controller.runOnMaster`           | Run on master nodes                     | `false`                                       |
 | `controller.runOnControlPlane`     | Run on control-plane nodes              | `false`                                       |
 | `controller.enableSnapshotter`     | Enable snapshotter                      | `true`                                        |
+| `controller.livenessProbe.healthPort` | Liveness port                        | `29662`                                       |
 | `controller.logLevel`              | Log level for controller                | `5`                                           |
 | `controller.workingMountDir`       | Working mount directory                 | `/tmp`                                        |
 | `controller.dnsPolicy`             | DNS policy for controller               | `ClusterFirstWithHostNet`                     |
 | `controller.defaultOnDeletePolicy` | Default volume deletion policy          | `delete`                                      |
-| `node.logLevel`                    | Log level for node                      | `5`                                           |
+| `controller.priorityClassName`     | Priority class name                     | `system-cluster-critical`                     |
+| `node.name`                        | Node daemonset name                     | `tns-csi-node`                                |
 | `node.dnsPolicy`                   | DNS policy for node                     | `ClusterFirstWithHostNet`                     |
 | `node.maxUnavailable`              | Maximum unavailable nodes during update | `1`                                           |
+| `node.logLevel`                    | Log level for node                      | `5`                                           |
+| `node.livenessProbe.healthPort`    | Liveness port                           | `29663`                                       |
+| `node.priorityClassName`           | Priority class name                     | `system-cluster-critical`                     |
 | `imagePullSecrets`                 | Image pull secrets                      | `[]`                                          |
 | `tnsApiKeySecret.create`           | Create TrueNAS API key secret           | `false`                                       |
 | `tnsApiKeySecret.name`             | Name of TrueNAS API key secret          | `truenas-apikey`                              |

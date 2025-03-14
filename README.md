@@ -50,7 +50,7 @@ In addition to the standard`"delete"`or`"retain"`reclaimPolicy for the volumes, 
 - A **user** with permission to:
   - Create datasets within the root dataset, 
   - Manage snapshots,
-  - reate NFS shares
+  - Create NFS shares
 - an **API token** for authentication
 
 ### Kubernetes Setup

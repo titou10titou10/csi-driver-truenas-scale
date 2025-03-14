@@ -43,7 +43,7 @@ spec:
           args:
             - '--csi-address=/csi/csi.sock'
             - '--probe-timeout=3s'
-            - '--http-endpoint=localhost:29653'
+            - '--http-endpoint=localhost:29663'
             - '--v=2'
         - resources:
             limits:
@@ -87,7 +87,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 29653
+              port: 29663
               host: localhost
               scheme: HTTP
             initialDelaySeconds: 30

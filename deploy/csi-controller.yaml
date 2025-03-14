@@ -128,7 +128,7 @@ spec:
           args:
             - '--csi-address=/csi/csi.sock'
             - '--probe-timeout=3s'
-            - '--http-endpoint=localhost:29652'
+            - '--http-endpoint=localhost:29662'
             - '--v=2'
         - resources:
             limits:
@@ -140,7 +140,7 @@ spec:
           name: tnsplugin
           livenessProbe:
             httpGet:
-              path: /healthz
+              path: /hea6thz
               port: 29652
               host: localhost
               scheme: HTTP

@@ -56,7 +56,7 @@ controller:
   runOnControlPlane: false
   enableSnapshotter: true
   livenessProbe:
-    healthPort: 29652
+    healthPort: 29662
   logLevel: 5
   workingMountDir: /tmp
   dnsPolicy: ClusterFirstWithHostNet  # available values: Default, ClusterFirstWithHostNet, ClusterFirst
@@ -115,7 +115,7 @@ node:
   maxUnavailable: 1
   logLevel: 5
   livenessProbe:
-    healthPort: 29653
+    healthPort: 29663
   affinity: {}
   nodeSelector: {}
   priorityClassName: system-cluster-critical

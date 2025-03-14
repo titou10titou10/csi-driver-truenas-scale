@@ -4,35 +4,35 @@
 
 This Helm chart deploys the Truenas Scale CSI driver, enabling dynamic provisioning of NFS volumes with ZFS snapshots in
 
-### Prerequisites
+## Prerequisites
  - [install Helm](https://helm.sh/docs/intro/quickstart/#install-helm)
- - the csi snapshot controller must be installed on the cluster, Modern version install it by default, 
+ - the CSI snapshot controller must be installed on the cluster, Modern version install it by default, 
    if not, visit the [external-snapshotter](https://github.com/kubernetes-csi/external-snapshotter) github site or visit your k8s implementation
 
-### Tips
- - run controller on control plane node: `--set controller.runOnControlPlane=true`
- - set replica of controller as `2`: `--set controller.replicas=2`
- - Microk8s based kubernetes recommended settings(refer to https://microk8s.io/docs/nfs):
-    - `--set controller.dnsPolicy=ClusterFirstWithHostNet`
-    - `--set kubeletDir="/var/snap/microk8s/common/var/lib/kubelet"` - sets correct path to microk8s kubelet even
-      though a user has a folder link to it.
- - on OpenShift/OKD, the controllers need privileged access to mount the nfs shares. R»un the following
-```console
-     oc adm policy add-scc-to-user privileged -n <namespace> -z <name of the csi controller service account>
-     oc adm policy add-scc-to-user privileged -n <namespace> -z <name of the node controller service account>
-```
-
-### install 
+## Install
+Either create a`"values.yml"`file or set chart parameters with`"--set..."`parameters
 ```console
 helm upgrade -i tns.csi.titou10.org -n <namespace> -f <your values.yaml> oci://ghcr.io/titou10titou10/tns-csi-driver:v0.9.0
 ```
 
-## uninstall CSI driver
+## Uninstall
 ```console
 helm uninstall tns.csi.titou10.org -n <namespace>
 ```
 
-## Parameters
+## Tips
+ - run controller on control plane node: `--set controller.runOnControlPlane=true`
+ - set replica of controller as `2`: `--set controller.replicas=2`
+ - Microk8s based kubernetes recommended settings(refer to https://microk8s.io/docs/nfs):
+    - `--set controller.dnsPolicy=ClusterFirstWithHostNet`
+    - `--set kubeletDir="/var/snap/microk8s/common/var/lib/kubelet"` : sets correct path to microk8s kubelet even
+      though a user has a folder link to it.
+ - on OpenShift/OKD, the controllers need privileged access to mount the nfs shares. R»un the following
+    - `oc adm policy add-scc-to-user privileged -n <namespace> -z <CSI controller service account>`
+    - `oc adm policy add-scc-to-user privileged -n <namespace> -z <node controller service account>`
+
+
+## Chart Parameters
 
 The following table lists the configurable parameters of the chart and their default values:
 

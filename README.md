@@ -87,7 +87,7 @@ For **TrueNAS SCALE >= 25.04** (Recommended):
 - Generate an **API token** for the user
 
 ### Kubernetes Setup:
-- Install the **CSI snapshot controller** if not already there, Most modern kubernetes install it by default
+- Install the **CSI snapshot controller** if not already there, Most modern kubernetes install it by default. If not, install the CRDs from the [kubernetes-csi github site](https://github.com/kubernetes-csi/external-snapshotter/tree/master/client/config/crd)
 - Create a **secret** storing the **API Token** (apiKey(). This secret must be referenced in the StorageClass or VolumeSnapshotClass.
 
 ### OpenShift/OKD Setup:

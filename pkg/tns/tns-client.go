@@ -228,7 +228,7 @@ func cleanupInactiveConnections(maxIdleTime time.Duration) {
 			client.mu.Lock()
 
 			if time.Since(client.lastActive) > maxIdleTime {
-				klog.V(2).Infof("Closing inactive WebSocket connection for %s", host)
+				klog.V(3).Infof("Closing inactive WebSocket connection for %s", host)
 				client.conn.Close()
 			} else {
 				activeClients = append(activeClients, client) // Keep active clients

@@ -15,3 +15,10 @@ labels:
 {{ toYaml .Values.customLabels | indent 2 -}}
   {{- end }}
 {{- end -}}
+
+{{- define "csi.sock.path" -}}
+{{- printf "/csi/%s" .Values.driver.name -}}
+{{- end -}}
+{{- define "csi.sock.name" -}}
+{{- printf "/csi/%s/csi.sock" .Values.driver.name -}}
+{{- end -}}

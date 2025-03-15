@@ -72,10 +72,10 @@ spec:
             - "--retry-interval-max=30m"
           env:
             - name: ADDRESS
-              value: /csi/csi.sock
+              value: {{ template "csi.sock.name" . }}
           imagePullPolicy: {{ .Values.image.csiProvisioner.pullPolicy }}
           volumeMounts:
-            - mountPath: /csi
+            - mountPath: {{ template "csi.sock.path" . }}
               name: socket-dir
           resources: {{- toYaml .Values.controller.resources.csiProvisioner | nindent 12 }}
           securityContext:
@@ -93,11 +93,11 @@ spec:
             - '-handle-volume-inuse-error=false'
           env:
             - name: ADDRESS
-              value: /csi/csi.sock
+              value: {{ template "csi.sock.name" . }}
           imagePullPolicy: {{ .Values.image.csiResizer.pullPolicy }}
           volumeMounts:
             - name: socket-dir
-              mountPath: /csi
+              mountPath: {{ template "csi.sock.path" . }}
           resources: {{- toYaml .Values.controller.resources.csiResizer | nindent 12 }}
           securityContext:
             capabilities:
@@ -115,12 +115,12 @@ spec:
             - "--retry-interval-max=30m"
           env:
             - name: ADDRESS
-              value: /csi/csi.sock
+              value: {{ template "csi.sock.name" . }}
           imagePullPolicy: {{ .Values.image.csiSnapshotter.pullPolicy }}
           resources: {{- toYaml .Values.controller.resources.csiSnapshotter | nindent 12 }}
           volumeMounts:
             - name: socket-dir
-              mountPath: /csi
+              mountPath: {{ template "csi.sock.path" . }}
           securityContext:
             capabilities:
               drop:
@@ -129,14 +129,14 @@ spec:
         - name: liveness-probe
           image: "{{ .Values.image.livenessProbe.repository }}:{{ .Values.image.livenessProbe.tag }}"
           args:
-            - --csi-address=/csi/csi.sock
+            - --csi-address={{ template "csi.sock.name" . }}
             - --probe-timeout=3s
             - --http-endpoint=localhost:{{ .Values.controller.livenessProbe.healthPort }}
             - --v=2
           imagePullPolicy: {{ .Values.image.livenessProbe.pullPolicy }}
           volumeMounts:
             - name: socket-dir
-              mountPath: /csi
+              mountPath: {{ template "csi.sock.path" . }}
           resources: {{- toYaml .Values.controller.resources.livenessProbe | nindent 12 }}
           securityContext:
             readOnlyRootFilesystem: true
@@ -166,7 +166,7 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
             - name: CSI_ENDPOINT
-              value: unix:///csi/csi.sock
+              value: unix://{{ template "csi.sock.name" . }}
           livenessProbe:
             failureThreshold: 5
             httpGet:
@@ -180,7 +180,7 @@ spec:
             - name: pods-mount-dir
               mountPath: {{ .Values.kubeletDir }}/pods
               mountPropagation: "Bidirectional"
-            - mountPath: /csi
+            - mountPath: {{ template "csi.sock.path" . }}
               name: socket-dir
           resources: {{- toYaml .Values.controller.resources.nfs | nindent 12 }}
       volumes:

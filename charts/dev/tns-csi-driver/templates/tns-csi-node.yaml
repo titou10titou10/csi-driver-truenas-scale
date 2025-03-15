@@ -46,14 +46,14 @@ spec:
         - name: liveness-probe
           image: "{{ .Values.image.livenessProbe.repository }}:{{ .Values.image.livenessProbe.tag }}"
           args:
-            - --csi-address=/csi/csi.sock
+            - --csi-address={{ template "csi.sock.name" . }}
             - --probe-timeout=3s
             - --http-endpoint=localhost:{{ .Values.node.livenessProbe.healthPort }}
             - --v=2
           imagePullPolicy: {{ .Values.image.livenessProbe.pullPolicy }}
           volumeMounts:
             - name: socket-dir
-              mountPath: /csi
+              mountPath: {{ template "csi.sock.path" . }}
           resources: {{- toYaml .Values.node.resources.livenessProbe | nindent 12 }}
           securityContext:
             readOnlyRootFilesystem: true
@@ -64,11 +64,11 @@ spec:
           image: "{{ .Values.image.nodeDriverRegistrar.repository }}:{{ .Values.image.nodeDriverRegistrar.tag }}"
           args:
             - --v=2
-            - --csi-address=/csi/csi.sock
+            - --csi-address={{ template "csi.sock.name" . }}
             - --kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)
           env:
             - name: DRIVER_REG_SOCK_PATH
-              value: {{ .Values.kubeletDir }}/plugins/csi-nfsplugin/csi.sock
+              value: {{ .Values.kubeletDir }}/plugins/{{ .Values.driver.name }}/csi.sock
             - name: KUBE_NODE_NAME
               valueFrom:
                 fieldRef:
@@ -76,7 +76,7 @@ spec:
           imagePullPolicy: {{ .Values.image.nodeDriverRegistrar.pullPolicy }}
           volumeMounts:
             - name: socket-dir
-              mountPath: /csi
+              mountPath: {{ template "csi.sock.path" . }}
             - name: registration-dir
               mountPath: /registration
           resources: {{- toYaml .Values.node.resources.nodeDriverRegistrar | nindent 12 }}
@@ -105,7 +105,7 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
             - name: CSI_ENDPOINT
-              value: unix:///csi/csi.sock
+              value: unix://{{ template "csi.sock.name" . }}
           livenessProbe:
             failureThreshold: 5
             httpGet:
@@ -118,7 +118,7 @@ spec:
           imagePullPolicy: {{ .Values.image.tnsplugin.pullPolicy }}
           volumeMounts:
             - name: socket-dir
-              mountPath: /csi
+              mountPath: {{ template "csi.sock.path" . }}
             - name: pods-mount-dir
               mountPath: {{ .Values.kubeletDir }}/pods
               mountPropagation: "Bidirectional"
@@ -126,7 +126,7 @@ spec:
       volumes:
         - name: socket-dir
           hostPath:
-            path: {{ .Values.kubeletDir }}/plugins/csi-nfsplugin
+            path: {{ .Values.kubeletDir }}/plugins/{{ .Values.driver.name }}
             type: DirectoryOrCreate
         - name: pods-mount-dir
           hostPath:

@@ -66,7 +66,7 @@ $ make build
 #### Start CSI driver locally
 ```console
 $ cd csi-driver-truenas-scale
-$ ./bin/nfsplugin --endpoint unix:///tmp/csi.sock --nodeid CSINode -v=5 &
+$ ./bin/tnsplugin --endpoint unix:///tmp/csi.sock --nodeid CSINode -v=5 &
 ```
 
 #### 0. Set environment variables

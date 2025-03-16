@@ -301,10 +301,25 @@ func TNSSnapshotCreate(client *Client, dsName string, snapshotName string) (*TNS
 	}
 	res, err := callTS[TNSSnapshot](client, "zfs.snapshot.create", params)
 	if err != nil {
-		csiErr := NewCsiError(codes.Internal, err)
-		klog.Errorf("Snapshot Creation failed: %v", csiErr)
-		return nil, csiErr
+		if customErr, ok := err.(CustomError); ok {
+			reason := strings.ToLower(customErr.Reason)
+
+			switch {
+			case strings.Contains(reason, "dataset already exists"):
+				// [17]  EEXIST: [EEXIST] Failed to snapshot  ...: dataset already exists
+				return nil, NewCsiError(codes.AlreadyExists, err)
+
+			default:
+				csiErr := NewCsiError(codes.Internal, err)
+				klog.Errorf("Dataset creation failed: %v", csiErr)
+				return nil, csiErr
+			}
+
+		} else {
+			return nil, NewCsiError(codes.Internal, err)
+		}
 	}
+
 	klog.V(2).Infof("++ Snapshot Creation OK: %v", res)
 	return &res, nil
 }
@@ -344,6 +359,39 @@ func TNSSnapshotDelete(client *Client, snapshotName string) (*bool, *CsiError) {
 	klog.V(2).Infof("++ Snapshot Delete OK: %v", res)
 	return &res, nil
 }
+func TNSSnapshotGet(client *Client, snapshotName string) (*TNSSnapshot, *CsiError) {
+	klog.V(2).Infof("### TNSSnapshotGet snapshotName: %s", snapshotName)
+	defer klog.V(2).Info("### TNSSnapshotGet")
+
+	params := []interface{}{
+		snapshotName,
+	}
+	res, err := callTS[TNSSnapshot](client, "zfs.snapshot.get_instance", params)
+	if err != nil {
+
+		if customErr, ok := err.(CustomError); ok {
+			reason := strings.ToLower(customErr.Reason)
+
+			switch {
+			case strings.Contains(reason, "does not exist"):
+				// [2] VALIDATION ENOENT: [ENOENT] None: Snapshot xxxx does not exist
+				klog.Errorf("++ Snapshot does not exist. %v", customErr.Reason)
+				return nil, NewCsiError(codes.Internal, err)
+
+			default:
+				csiErr := NewCsiError(codes.Internal, err)
+				klog.Errorf("Snapshot Get failed: %v", csiErr)
+				return nil, csiErr
+			}
+
+		} else {
+			return nil, NewCsiError(codes.Internal, err)
+		}
+	}
+
+	klog.V(3).Info("++ Snapshot Get OK")
+	return &res, nil
+}
 
 func TNSDatasetDestroySnapshotsJob(client *Client, dsName string) (*int, *CsiError) {
 	klog.V(2).Infof("### TNSDatasetDestroySnapshotsJob dsName: %s", dsName)
@@ -381,26 +429,26 @@ func TNSSnapshotClone(client *Client, sourceSnapshotName string, targetDsName st
 	return nil
 }
 
-func TNSSnapshotGet(client *Client, dsName string) ([]TNSSnapshot, *CsiError) {
-	klog.V(2).Infof("### TNSSnapshotGet dsName: %s", dsName)
-	defer klog.V(2).Info("### TNSSnapshotGet")
+// func TNSSnapshotGet(client *Client, dsName string) ([]TNSSnapshot, *CsiError) {
+// 	klog.V(2).Infof("### TNSSnapshotGet dsName: %s", dsName)
+// 	defer klog.V(2).Info("### TNSSnapshotGet")
 
-	params := []interface{}{
-		dsName, // The dataset name
-		map[string]interface{}{
-			"select": map[string]bool{"name": true}, // Correct selection format
-		},
-	}
+// 	params := []interface{}{
+// 		dsName, // The dataset name
+// 		map[string]interface{}{
+// 			"select": map[string]bool{"name": true}, // Correct selection format
+// 		},
+// 	}
 
-	snapshots, err := callTS[[]TNSSnapshot](client, "zfs.snapshot.query", params)
-	if err != nil {
-		csiErr := NewCsiError(codes.Internal, err)
-		klog.Errorf("Snapshot Get failed: %v", csiErr)
-		return nil, csiErr
-	}
+// 	snapshots, err := callTS[[]TNSSnapshot](client, "zfs.snapshot.query", params)
+// 	if err != nil {
+// 		csiErr := NewCsiError(codes.Internal, err)
+// 		klog.Errorf("Snapshot Get failed: %v", csiErr)
+// 		return nil, csiErr
+// 	}
 
-	return snapshots, nil
-}
+// 	return snapshots, nil
+// }
 
 // ---------
 // NFS Share

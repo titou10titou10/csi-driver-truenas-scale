@@ -43,7 +43,7 @@ func CsiVolumeCreate(tnsWsUrl string, apiKey string, driverName string, dsName s
 			if (csiErr2 != nil) || different {
 				return nil, nil, logAndReturnError("Failed to create dataset", csiErr2)
 			}
-			klog.Info("Dataset with same specs already exists. Use it")
+			klog.V(2).Info("Dataset with same specs already exists. Use it")
 			return &dsName, nfsSharePath, nil
 		} else {
 			return nil, nil, logAndReturnError("Failed to create dataset", csiErr)
@@ -61,7 +61,7 @@ func CsiVolumeCreate(tnsWsUrl string, apiKey string, driverName string, dsName s
 		return nil, nil, logAndReturnError("Failed to create NFS share", csiErr)
 	}
 
-	klog.Info("++ Dataset and NFS share created successfully")
+	klog.V(2).Info("++ Dataset and NFS share created successfully")
 	return &dsName, nfsSharePath, nil
 }
 
@@ -207,7 +207,7 @@ func CsiDatasetClone(tnsWsUrl string, apiKey string, rootDataset string, srcDsNa
 		klog.Warningf("Delete Snapshot created for replication failed. Continue: %v", csiErr)
 	}
 
-	klog.Info("Dataset clone successfull")
+	klog.V(2).Info("Dataset clone successful")
 	return nil
 }
 
@@ -282,7 +282,7 @@ func CsiSnapshotClone(tnsWsUrl string, apiKey string, rootDataset string, srcSna
 		klog.Warningf("Delete Snapshot created for replication failed. Continue: %v", csiErr)
 	}
 
-	klog.Info("Snapshot clone successfull")
+	klog.V(2).Info("Snapshot clone successful")
 	return nil
 }
 
@@ -298,8 +298,18 @@ func CsiSnapshotCreate(tnsWsUrl string, apiKey string, rootDataset string, dsNam
 
 	snapshot, csiErr := TNSSnapshotCreate(client, dsName, snapshotName)
 	if csiErr != nil {
-		klog.Errorf("Snapshot creation failed: %s", csiErr)
-		return nil, nil, csiErr
+		if csiErr.Code == codes.AlreadyExists {
+			// Snapshot already exist, use it
+			snapshot, csiErr = TNSSnapshotGet(client, dsName+"@"+snapshotName)
+			if csiErr != nil {
+				return nil, nil, csiErr
+			}
+			klog.V(2).Info("Snapshot already exists. Use it")
+		} else {
+			klog.Errorf("Snapshot creation failed: %s", csiErr)
+			return nil, nil, csiErr
+		}
+
 	}
 	var restoreSize int64 = 0
 	if parsed, ok := snapshot.Properties.Referenced.Parsed.(float64); ok {

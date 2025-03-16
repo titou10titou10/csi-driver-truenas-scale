@@ -157,6 +157,11 @@ func (cs *ControllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 		return nil, err
 	}
 
+	// DS Minimum Size check
+	if reqCapacity < MinimumDatasetSize {
+		return nil, status.Errorf(codes.InvalidArgument, "Required capacity (%d) is less than minimum size (%d)", reqCapacity, MinimumDatasetSize)
+	}
+
 	apiKey, exists := req.GetSecrets()[apiKeySecretNameKey]
 	if !exists || apiKey == "" {
 		return nil, status.Errorf(codes.FailedPrecondition, "Secret with 'apiKey' key not found")

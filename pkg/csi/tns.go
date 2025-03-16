@@ -50,11 +50,11 @@ type Driver struct {
 }
 
 const (
-	DefaultDriverName      = "tns.csi.titou10.org"
-	DefaultDsNameTemplate  = "${pvc.metadata.namespace}-${pvc.metadata.name}-${pv.metadata.name}"
-	DefaultDSArchivePrefix = "zz"
-	TruenassDsMaxLength    = 200
-	MinimumDatasetSize     = 1 * 1024 * 1024 * 1024 // 1 GB
+	DefaultDriverName            = "tns.csi.titou10.org"
+	DefaultDsNameTemplate        = "${pvc.metadata.namespace}-${pvc.metadata.name}-${pv.metadata.name}"
+	DefaultDSArchivePrefix       = "zz"
+	TruenassDsMaxLength          = 200
+	MinimumDatasetSize     int64 = 1073741824 // 1 GB
 
 	// Secret key for Truenas Scale api key
 	apiKeySecretNameKey = "apiKey"

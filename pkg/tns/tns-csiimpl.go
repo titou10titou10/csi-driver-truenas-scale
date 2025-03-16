@@ -16,6 +16,7 @@ package tns
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -36,7 +37,17 @@ func CsiVolumeCreate(tnsWsUrl string, apiKey string, driverName string, dsName s
 
 	ds, csiErr := TNSDatasetCreate(client, driverName, dsName, reqCapacity, parameters)
 	if csiErr != nil {
-		return nil, nil, logAndReturnError("Failed to create dataset", csiErr)
+		if csiErr.Code == codes.AlreadyExists {
+			// If ds exists with same capacity and params, use the existing one
+			different, nfsSharePath, csiErr2 := isDifferentVolume(client, dsName, reqCapacity, parameters)
+			if (csiErr2 != nil) || different {
+				return nil, nil, logAndReturnError("Failed to create dataset", csiErr2)
+			}
+			klog.Info("Dataset with same specs already exists. Use it")
+			return &dsName, nfsSharePath, nil
+		} else {
+			return nil, nil, logAndReturnError("Failed to create dataset", csiErr)
+		}
 	}
 
 	if csiErr := TNSDatasetSetPermissions(client, ds.MountPoint, parameters); csiErr != nil {
@@ -347,6 +358,66 @@ func CsiVolumeExpand(tnsWsUrl string, apiKey string, rootDataset string, dsName 
 // -------
 // Helpers
 // -------
+
+func isDifferentVolume(client *Client, dsName string, reqCapacity int64, parameters map[string]string) (bool, *string, *CsiError) {
+	defer klog.V(3).Info("Requested dataset already exist. Check attributes")
+
+	// Check DS attributes
+	ds, csiErr := TNSDatasetGet(client, dsName)
+	if csiErr != nil {
+		return true, nil, csiErr
+	}
+	refQuota, ok := ds.RefQuota.Parsed.(float64)
+	if !ok {
+		csiErr := NewCsiError(codes.Internal, fmt.Errorf("Error parsing RefQuota value. Could not assert that '%v' is int64", ds.Available.Parsed))
+		klog.Errorf("Get Capacity get failed:: %s", csiErr)
+		return true, nil, csiErr
+	}
+	if int64(refQuota) != reqCapacity {
+		csiErr := NewCsiError(codes.Internal, fmt.Errorf("dataset already exist with different capacity: %v, requested: %d", ds.RefQuota.Parsed, reqCapacity))
+		return true, nil, csiErr
+	}
+
+	// Check DS permissions
+	dsStats, csiErr := TNSDatasetGetPermissions(client, ds.MountPoint)
+	if csiErr != nil {
+		return true, nil, csiErr
+	}
+	// TODO 16888 = 40770 vs 770...
+	// if p, ok := parameters["dsPermissionsMode"]; ok && p != "" {
+	// 	if num, err := strconv.Atoi(p); err == nil {
+	// 		if dsStats.Mode != num {
+	// 			csiErr := NewCsiError(codes.Internal, fmt.Errorf("dataset already exist with different mode: %d, requested: %d", dsStats.Mode, num))
+	// 			return false, nil, csiErr
+	// 		}
+	// 	}
+	// }
+	if p, ok := parameters["dsPermissionsUser"]; ok && p != "" {
+		if num, err := strconv.Atoi(p); err == nil {
+			if dsStats.UID != num {
+				csiErr := NewCsiError(codes.Internal, fmt.Errorf("dataset already exist with different uid: %d, requested: %d", dsStats.UID, num))
+				return false, nil, csiErr
+			}
+		}
+	}
+	if p, ok := parameters["dsPermissionsGroup"]; ok && p != "" {
+		if num, err := strconv.Atoi(p); err == nil {
+			if dsStats.GID != num {
+				csiErr := NewCsiError(codes.Internal, fmt.Errorf("dataset already exist with different gid: %d, requested: %d", dsStats.GID, num))
+				return false, nil, csiErr
+			}
+		}
+	}
+
+	// Check NFS Sharing
+	share, csiErr := TNSShareNfsGet(client, ds.MountPoint)
+	if csiErr != nil || share == nil {
+		return true, nil, csiErr
+	}
+
+	return false, &share.Path, nil
+
+}
 
 func cleanupDataset(client *Client, dsName string) {
 	if err := TNSDatasetDelete(client, dsName); err != nil {

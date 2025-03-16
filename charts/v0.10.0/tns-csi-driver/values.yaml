@@ -1,0 +1,202 @@
+
+image:
+
+  tnsplugin:
+    repository: ghcr.io/titou10titou10/tnsplugin
+    tag: v0.9.0
+    pullPolicy: IfNotPresent
+
+  csiProvisioner:
+    repository: registry.k8s.io/sig-storage/csi-provisioner
+    tag: v5.2.0
+    pullPolicy: IfNotPresent
+  csiResizer:
+    repository: registry.k8s.io/sig-storage/csi-resizer
+    tag: v1.13.1
+    pullPolicy: IfNotPresent
+  csiSnapshotter:
+    repository: registry.k8s.io/sig-storage/csi-snapshotter
+    tag: v8.2.0
+    pullPolicy: IfNotPresent
+  livenessProbe:
+    repository: registry.k8s.io/sig-storage/livenessprobe
+    tag: v2.15.0
+    pullPolicy: IfNotPresent
+  nodeDriverRegistrar:
+    repository: registry.k8s.io/sig-storage/csi-node-driver-registrar
+    tag: v2.13.0
+    pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true # When true, service accounts will be created for you. Set to false if you want to use your own.
+  controller: tns-csi-controller-sa # Name of Service Account to be created or used
+  node: tns-csi-node-sa # Name of Service Account to be created or used
+
+rbac:
+  create: true # Create Cluster Roles and CRB
+  namePrefix: tns-csi
+
+
+driver:
+  name: tns.csi.titou10.org
+  mountPermissions: 0
+
+feature:
+  enableFSGroupPolicy: true
+
+kubeletDir: /var/lib/kubelet
+
+customLabels: {}
+
+controller:
+  name: tns-csi-controller
+  replicas: 1
+  strategyType: Recreate
+  runOnMaster: false
+  runOnControlPlane: false
+  enableSnapshotter: true
+  livenessProbe:
+    healthPort: 29662
+  logLevel: 5
+  workingMountDir: /tmp
+  dnsPolicy: ClusterFirstWithHostNet  # available values: Default, ClusterFirstWithHostNet, ClusterFirst
+  defaultOnDeletePolicy: delete  # available values: delete, retain
+  affinity: {}
+  nodeSelector: {}
+  priorityClassName: system-cluster-critical
+  tolerations:
+    - key: "node-role.kubernetes.io/master"
+      operator: "Exists"
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/controlplane"
+      operator: "Exists"
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
+    - key: "CriticalAddonsOnly"
+      operator: "Exists"
+      effect: "NoSchedule"
+  resources:
+    csiProvisioner:
+      limits:
+        memory: 400Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    csiResizer:
+      limits:
+        memory: 400Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    csiSnapshotter:
+      limits:
+        memory: 200Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    livenessProbe:
+      limits:
+        memory: 100Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    tnscsiplugin:
+      limits:
+        memory: 200Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+
+node:
+  name: tns-csi-node
+  dnsPolicy: ClusterFirstWithHostNet  # available values: Default, ClusterFirstWithHostNet, ClusterFirst
+  maxUnavailable: 1
+  logLevel: 5
+  livenessProbe:
+    healthPort: 29663
+  affinity: {}
+  nodeSelector: {}
+  priorityClassName: system-cluster-critical
+  tolerations:
+    - operator: "Exists"
+  resources:
+    livenessProbe:
+      limits:
+        memory: 100Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    nodeDriverRegistrar:
+      limits:
+        memory: 100Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    tnsplugin:
+      limits:
+        memory: 300Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+
+
+## Reference to one or more secrets to be used when pulling images
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+##
+imagePullSecrets: []
+# - name: "image-pull-secret"
+
+tnsApiKeySecret:
+  create: false
+#  name: truenas-apikey
+#  apiKey: 1-abcdef...
+
+storageClass:
+  create: false
+#  name: tns-csi-sc
+#  annotations:
+#    storageclass.kubernetes.io/is-default-class: "true"
+#  reclaimPolicy: Delete
+#  volumeBindingMode: Immediate
+#  parameters:
+#    tnsWsUrl: wss://truenas.local.server/websocket # mandatory
+#    rootDataset: POOL-CSI # mandatory
+#    dsNameTemplate: ${pvc.metadata.namespace}-${pvc.metadata.name}-${pv.metadata.name}
+#    dsArchivePrefix: "ar"
+#    onDelete: delete 
+#    csi.storage.k8s.io/provisioner-secret-name: truenas-apikey
+#    csi.storage.k8s.io/provisioner-secret-namespace: tns-csi
+#    csi.storage.k8s.io/controller-expand-secret-name: truenas-apikey
+#    csi.storage.k8s.io/controller-expand-secret-namespace: tns-csi
+# 
+#    mountPermissions: "777"
+#
+#    dsPermissionsMode: "0770"
+#    dsPermissionsUser: "0"
+#    dsPermissionsGroup: "6000"
+#
+#    shareMaprootUser: "root"
+#    shareMaprootGroup: "wheel"
+#    shareMapallUser: ""
+#    shareMapallGroup: ""
+#    shareAllowedHosts: ""
+#    shareAllowedNetworks: "192.168.1.0/24 , 192.168.2.0/24"
+#  mountOptions:
+#    - hard
+#    - nfsvers=4.2
+#    - rsize=1048576
+#    - wsize=1048576
+#    - noacl
+#    - noatime
+#    - nocto
+#    - nodiratime
+
+volumeSnapshotClass:
+  create: false
+#  name: tns-csi-vsc
+#  deletionPolicy: Delete
+#  parameters:
+#   csi.storage.k8s.io/snapshotter-secret-name: truenas-apikey
+#   csi.storage.k8s.io/snapshotter-secret-namespace: tns-csi

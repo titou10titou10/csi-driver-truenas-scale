@@ -12,7 +12,7 @@ This Helm chart deploys the Truenas Scale CSI driver, enabling dynamic provision
 ## Install
 Either create a`"values.yml"`file or set chart parameters with`"--set..."`parameters
 ```console
-helm upgrade -i tns.csi.titou10.org -n <namespace> -f <your values.yaml> oci://ghcr.io/titou10titou10/tns-csi-driver:v0.9.0
+helm upgrade -i tns.csi.titou10.org -n <namespace> -f <your values.yaml> oci://ghcr.io/titou10titou10/tns-csi-driver:v0.10.0
 ```
 
 ## Uninstall

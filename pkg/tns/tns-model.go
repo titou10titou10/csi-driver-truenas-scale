@@ -103,7 +103,6 @@ type TNSDataset struct {
 	// Encrypted      bool        `json:"encrypted,omitempty"`
 	// EncryptionRoot string      `json:"encryption_root,omitempty"`
 	// KeyLoaded      bool        `json:"key_loaded,omitempty"`
-	// MountPoint     string      `json:"mountpoint,omitempty"`
 	// Children       []any  `json:"children"`
 	// ManagedBy      ZFSProperty `json:"managedby,omitempty"`
 	// Deduplication  ZFSProperty `json:"deduplication,omitempty"`
@@ -154,6 +153,29 @@ type TNSNFSShare struct {
 	Enabled      bool     `json:"enabled,omitempty"`       // Default: true
 	ID           uint     `json:"id,omitempty"`            // Optional
 	Locked       bool     `json:"locked,omitempty"`        // Optional
+}
+
+type TNSDatasetStats struct {
+	//Realpath        string   `json:"realpath"`
+	//Size            int      `json:"size"`
+	//AllocationSize  int      `json:"allocation_size"`
+	Mode int `json:"mode"`
+	UID  int `json:"uid"`
+	GID  int `json:"gid"`
+	//Atime           float64  `json:"atime"`
+	//Mtime           float64  `json:"mtime"`
+	//Ctime           float64  `json:"ctime"`
+	//Btime           float64  `json:"btime"`
+	//Dev             int      `json:"dev"`
+	//MountID int `json:"mount_id"`
+	//Inode           int      `json:"inode"`
+	//Nlink        int      `json:"nlink"`
+	//IsMountpoint bool     `json:"is_mountpoint"`
+	//IsCtldir     bool     `json:"is_ctldir"`
+	//Attributes   []string `json:"attributes"`
+	//User         *string  `json:"user"`
+	//Group        *string  `json:"group"`
+	//Acl             bool     `json:"acl"`
 }
 
 type EncryptionOptions struct {

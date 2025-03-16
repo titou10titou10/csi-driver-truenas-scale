@@ -110,6 +110,24 @@ func TNSDatasetSetPermissions(client *Client, dsMountPoint string, parameters ma
 	return nil
 }
 
+func TNSDatasetGetPermissions(client *Client, dsMountPoint string) (*TNSDatasetStats, *CsiError) {
+	klog.V(2).Infof("### TNSDatasetGetPermissions dsMountPoint: %s", dsMountPoint)
+	defer klog.V(2).Info("### TNSDatasetGetPermissions")
+
+	params := []interface{}{
+		dsMountPoint,
+	}
+	res, err := callTS[TNSDatasetStats](client, "filesystem.stat", params)
+	if err != nil {
+		csiErr := NewCsiError(codes.Internal, err)
+		klog.Errorf("Dataset Get permission failed: %s", csiErr)
+		return nil, csiErr
+	}
+
+	klog.V(2).Infof("++ Get permission OK: %d", res)
+	return &res, nil
+}
+
 func TNSDatasetSetSize(client *Client, dsName string, newSize int64) (*TNSDataset, *CsiError) {
 	klog.V(2).Infof("### TNSDatasetSetSize dsName: %s newSize: %d", dsName, newSize)
 	defer klog.V(2).Info("### TNSDatasetSetSize")
@@ -427,12 +445,36 @@ func TNSShareNfsCreate(client *Client, dsMountPoint string, parameters map[strin
 	nfs, err := callTS[TNSNFSShare](client, "sharing.nfs.create", params)
 	if err != nil {
 		csiErr := NewCsiError(codes.Internal, err)
-		klog.Errorf("Dataset Create failed: %s", csiErr)
+		klog.Errorf("NFS Share Create failed: %s", csiErr)
 		return nil, csiErr
 	}
 
 	klog.V(3).Infof("++ NFS Share create OK: %v", nfs)
 	return &nfs.Path, nil
+}
+
+func TNSShareNfsGet(client *Client, mountPoint string) (*TNSNFSShare, *CsiError) {
+	klog.V(2).Infof("### TNSShareNfsGet dsName: %s", mountPoint)
+	defer klog.V(2).Info("### TNSShareNfsGet")
+
+	params := []interface{}{
+		[]interface{}{
+			[]interface{}{"path", "=", mountPoint},
+		},
+	}
+
+	shares, err := callTS[[]TNSNFSShare](client, "sharing.nfs.query", params)
+	if err != nil {
+		csiErr := NewCsiError(codes.Internal, err)
+		klog.Errorf("NFS Share Get failed: %s", csiErr)
+		return nil, csiErr
+	}
+	klog.V(3).Info("++ NFS Share Get OK")
+	if len(shares) == 0 {
+		return nil, nil
+	} else {
+		return &shares[0], nil
+	}
 }
 
 // -----

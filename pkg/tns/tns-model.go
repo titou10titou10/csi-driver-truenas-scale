@@ -211,18 +211,21 @@ type WSRequest struct {
 // -------------------------
 
 type WSResponse struct {
-	ID     string          `json:"id"`
-	Msg    string          `json:"msg"`
-	Error  Error           `json:"error,omitempty"`
-	Result json.RawMessage `json:"result,omitempty"`
+	ID      string          `json:"id"`
+	Msg     string          `json:"msg,omitempty"`     // Truenas Scale < 25.x
+	JsonRPC string          `json:"jsonrpc,omitempty"` // Truenas Scale >= 25.x
+	Error   Error           `json:"error,omitempty"`
+	Result  json.RawMessage `json:"result,omitempty"`
 }
 
 type Error struct {
 	Code    int    `json:"error,omitempty"`
-	Errname string `json:"errname,omitempty"`
-	Type    string `json:"type,omitempty"`
-	Reason  string `json:"reason,omitempty"`
-	// Trace   Trace  `json:"trace,omitempty"`
+	Errname string `json:"errname,omitempty"` // Truenas Scale < 25.x
+	Type    string `json:"type,omitempty"`    // Truenas Scale < 25.x
+	Reason  string `json:"reason,omitempty"`  // Truenas Scale < 25.x
+	// Trace   Trace  `json:"trace,omitempty"` // Truenas Scale < 25.x
+	Message string `json:"message,omitempty"` // Truenas Scale >= 25.x
+	Data    string `json:"data,omitempty"`    // Truenas Scale >= 25.x
 }
 
 func (e Error) IsErrorPresent() bool {

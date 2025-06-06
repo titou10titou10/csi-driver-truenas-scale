@@ -2,7 +2,7 @@
 
 ### Requirements
 
-- go 1.24.1+ installed
+- go 1.24.4+ installed
 - podman is installed
 
 ## Build

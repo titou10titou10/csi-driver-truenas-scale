@@ -1,6 +1,6 @@
 module github.com/titou10/csi-driver-truenas-scale
 
-go 1.24.3
+go 1.24.4
 
 require (
 	github.com/container-storage-interface/spec v1.11.0

@@ -38,7 +38,11 @@ jobs:
       #      ${{ runner.os }}-go-
 
       - name: Install dependencies
-        run: go mod tidy
+        run: |
+          export GOPROXY=direct
+          export GOSUMDB=off
+          go mod tidy
+          go mod download
 
       #- name: Build with Makefile
       #  run: make build IMAGE_TAG=dev

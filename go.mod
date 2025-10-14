@@ -13,7 +13,7 @@ require (
 	google.golang.org/protobuf v1.36.10
 	k8s.io/apimachinery v0.34.1
 	k8s.io/klog/v2 v2.130.1
-	k8s.io/kubernetes v1.34.1
+	k8s.io/kubernetes v1.33.5
 	k8s.io/mount-utils v0.34.1
 	k8s.io/utils v0.0.0-20251002143259-bc988d571ff4
 	sigs.k8s.io/yaml v1.6.0

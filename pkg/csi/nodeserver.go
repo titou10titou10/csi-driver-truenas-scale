@@ -95,10 +95,7 @@ func (ns *NodeServer) NodePublishVolume(_ context.Context, req *csi.NodePublishV
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("%v is a required parameter", paramNfsSharePath))
 	}
 
-	server, err := getServerFromSource(tnsWsUrl)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("%v is not a valid url", tnsWsUrl))
-	}
+	server := getServerFromSource(tnsWsUrl)
 
 	notMnt, err := ns.mounter.IsLikelyNotMountPoint(targetPath)
 	if err != nil {
@@ -115,7 +112,7 @@ func (ns *NodeServer) NodePublishVolume(_ context.Context, req *csi.NodePublishV
 		return &csi.NodePublishVolumeResponse{}, nil
 	}
 
-	source := fmt.Sprintf("%s:%s", *server, nfsSharePath)
+	source := fmt.Sprintf("%s:%s", server, nfsSharePath)
 
 	// ******************************
 	// klog.V(3).Infof(">>>> PUB >>>>>>>>>>>>> %s %s %s", targetPath, mountOptions, volumeID)

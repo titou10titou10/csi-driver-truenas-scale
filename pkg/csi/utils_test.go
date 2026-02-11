@@ -123,36 +123,36 @@ func TestGetLogLevel(t *testing.T) {
 
 func TestGetServerFromSource(t *testing.T) {
 	tests := []struct {
-		desc     string
-		tnsWsUrl string
-		result   string
+		desc   string
+		server string
+		result string
 	}{
 		{
-			desc:     "ipv4",
-			tnsWsUrl: "wss://10.127.0.1",
-			result:   "10.127.0.1",
+			desc:   "ipv4",
+			server: "10.127.0.1",
+			result: "10.127.0.1",
 		},
 		{
-			desc:     "ipv6",
-			tnsWsUrl: "wss://0:0:0:0:0:0:0:1",
-			result:   "[0:0:0:0:0:0:0:1]",
+			desc:   "ipv6",
+			server: "0:0:0:0:0:0:0:1",
+			result: "[0:0:0:0:0:0:0:1]",
 		},
 		{
-			desc:     "ipv6 with brackets",
-			tnsWsUrl: "wss://[0:0:0:0:0:0:0:2]",
-			result:   "[0:0:0:0:0:0:0:2]",
+			desc:   "ipv6 with brackets",
+			server: "[0:0:0:0:0:0:0:2]",
+			result: "[0:0:0:0:0:0:0:2]",
 		},
 		{
-			desc:     "other fqdn",
-			tnsWsUrl: "wss://bing.com",
-			result:   "bing.com",
+			desc:   "other fqdn",
+			server: "bing.com",
+			result: "bing.com",
 		},
 	}
 
 	for _, test := range tests {
-		result, _ := getServerFromSource(test.tnsWsUrl)
-		if *result != test.result {
-			t.Errorf("Unexpected result: %s, expected: %s", *result, test.result)
+		result := getServerFromSource(test.server)
+		if result != test.result {
+			t.Errorf("Unexpected result: %s, expected: %s", result, test.result)
 		}
 	}
 }

@@ -18,7 +18,6 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"math/big"
-	"net/url"
 	"os"
 	"regexp"
 	"strings"
@@ -168,18 +167,11 @@ func chmodIfPermissionMismatch(targetPath string, mode os.FileMode) error {
 }
 
 // getServerFromSource if server is IPv6, return [IPv6]
-func getServerFromSource(tnsWsUrl string) (*string, error) {
-	parsedURL, err := url.Parse(tnsWsUrl)
-	if err != nil {
-		klog.Errorf("invalid truenas scale url: %s", err)
-		return nil, err
+func getServerFromSource(server string) string {
+    if netutil.IsIPv6String(server) {
+		return fmt.Sprintf("[%s]", server)
 	}
-
-	if netutil.IsIPv6String(parsedURL.Host) {
-		host := fmt.Sprintf("[%s]", parsedURL.Host)
-		return &host, nil
-	}
-	return &parsedURL.Host, nil
+	return server
 }
 
 // ExecFunc returns a exec function's output and error

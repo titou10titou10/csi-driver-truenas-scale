@@ -3,16 +3,16 @@ entries:
   tns-csi-driver:
   - apiVersion: v1
     appVersion: v0.10.0
-    created: "2026-06-03T09:00:36.305009966-04:00"
+    created: "2026-07-08T09:29:26.422756671-04:00"
     description: CSI Driver for TrueNAS SCALE
-    digest: 67490de9e94286ba644e48aaaa34df8efe85a88e14e52ed02a204d4870dbc28f
+    digest: 9eb3bfc86f9d57ac359a766bcb5eee33fac667b89b200e6de15fae58e2dbc5da
     name: tns-csi-driver
     urls:
     - ghcr.io/titou10titou10/v0.10.0/tns-csi-driver-v0.10.0.tgz
     version: v0.10.0
   - apiVersion: v1
     appVersion: v0.9.0
-    created: "2026-06-03T09:00:36.307159561-04:00"
+    created: "2026-07-08T09:29:26.423210732-04:00"
     description: CSI Driver for TrueNAS SCALE
     digest: 2422cef2bae632dbdd8d80cff8247320978e5d98e9b90fee1451269b776542c4
     name: tns-csi-driver
@@ -21,11 +21,11 @@ entries:
     version: v0.9.0
   - apiVersion: v1
     appVersion: dev
-    created: "2026-06-03T09:00:36.30422477-04:00"
+    created: "2026-07-08T09:29:26.422176879-04:00"
     description: CSI Driver for TrueNAS SCALE
-    digest: bf81170b08dd5f3427d2821154d76ecbc98f48a1fd4ec9c2c8826259ab3bf9c0
+    digest: 77ad5542356840cc1e5cf13fd65b4cd3b7e8e37433e0d11ac3eb11b912a85893
     name: tns-csi-driver
     urls:
     - ghcr.io/titou10titou10/dev/tns-csi-driver-v0.0.0-dev.tgz
     version: v0.0.0-dev
-generated: "2026-06-03T09:00:36.297587745-04:00"
+generated: "2026-07-08T09:29:26.420746444-04:00"

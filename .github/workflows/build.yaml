@@ -15,22 +15,22 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.26.4'
+          go-version: '1.26.5'
 
       - name: Login to ghcr
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
 
       #- name: Cache Go modules
-      #  uses: actions/cache@v3
+      #  uses: actions/cache@v6
       #  with:
       #    path: ~/.cache/go-build
       #    key: ${{ runner.os }}-go-${{ hashFiles('**/go.mod') }}
@@ -58,13 +58,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up Helm
-        uses: Azure/setup-helm@v4.3.1
+        uses: Azure/setup-helm@v5
 
       - name: Login to ghcr
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -78,12 +78,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.26.4'
+          go-version: '1.26.5'
 
       - name: Install dependencies
         run: go mod tidy
